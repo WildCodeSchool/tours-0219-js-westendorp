@@ -1,0 +1,67 @@
+version: "3.3"
+
+services:
+  proxy:
+    image: traefik
+    command: --api --docker --docker.domain=docker.localhost --logLevel=DEBUG
+    networks:
+      - front-network
+      - back-network
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+
+  db:
+    image: mongo:4.0.1
+    networks:
+      - back-network
+    volumes:
+      - ./mongo-volume:/data/db
+    depends_on:
+      - proxy
+
+  api:
+    build:
+      context: ./tours-0219-js-westendorp-api
+    environment:
+      - UPLOAD_PATH=/tmp/upload
+      - NODE_ENV=production
+      - PORT=3000
+      - SECRET_KEY=secretKey
+      # - DBURI=mongodb+srv://admin:transformer2019@cluster0-vfkte.azure.mongodb.net/Westendorp?retryWrites=true
+      - DBURI=mongodb://db/Westendorp?retryWrites=true
+    networks:
+      - front-network
+      - back-network
+    depends_on:
+      - db
+    labels:
+      - "traefik.frontend.rule=Host:localhost;PathPrefix:/api"
+      - "traefik.port=3000"
+      - "traefik.docker.network=front-network"
+
+  ui:
+    build:
+      context: ./tours-0219-js-westendorp-ui
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+    networks:
+      - front-network
+    depends_on:
+      - api
+    labels:
+      - "traefik.frontend.rule=Host:localhost"
+      - "traefik.port=80"
+      - "traefik.docker.network=front-network"
+
+networks:
+  front-network:
+  back-network:
+
+volumes:
+  mongo-volume:
+    driver: "local"
