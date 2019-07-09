@@ -1,8 +1,8 @@
 #   
 
 ## Projets
-1. [smart-borne-api](https://github.com/WildCodeSchool/tours-0219-js-smart-borne-api)
-2. [smart-borne-ui](https://github.com/WildCodeSchool/tours-0219-js-smart-borne-ui)
+1. [westendorp-api](https://github.com/WildCodeSchool/tours-0219-js-westendorp-api)
+2. [westendorp-ui](https://github.com/WildCodeSchool/tours-0219-js-westendorp-ui)
 
 ## Git sub modules  
 ### Cloner le projet
@@ -11,10 +11,10 @@ Pour cloner le projet et ses sous-modules, entrez la commande suivante :
 
 ```sh
 # With SSH
-$ git clone --recurse-submodules git@github.com:WildCodeSchool/tours-0219-js-smart-borne.git
+$ git clone --recurse-submodules git@github.com:WildCodeSchool/tours-0219-js-westendorp.git
 
 # With HTTPS
-$ git clone --recurse-submodules https://github.com/WildCodeSchool/tours-0219-js-smart-borne.git
+$ git clone --recurse-submodules https://github.com/WildCodeSchool/tours-0219-js-westendorp.git
 ```
 
 ### Mise à jour des sous-modules
@@ -24,20 +24,20 @@ $ git clone --recurse-submodules https://github.com/WildCodeSchool/tours-0219-js
 $ git submodule update --remote
 
 # Sous-module back
-$ git submodule update --remote smart-borne-api
+$ git submodule update --remote westendorp-api
 
 # Sous-module front
-$ git submodule update --remote smart-borne-ui
+$ git submodule update --remote westendorp-ui
 ```
 
 ### Pousser les modifications des sous-modules
 
 ```sh
 # Si modifs sur back
-$ git add smart-borne-api
+$ git add westendorp-api
 
 # Si modifs sur front
-$ git add smart-borne-ui
+$ git add westendorp-ui
 
 # Commit message
 $ git commit -m "message explicite"
