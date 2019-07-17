@@ -1,6 +1,3 @@
-[submodule "tours-0219-js-westendorp-ui"]
-	path = tours-0219-js-westendorp-ui
-	url = https://github.com/WildCodeSchool/tours-0219-js-westendorp-ui.git
 [submodule "tours-0219-js-westendorp-api"]
 	path = tours-0219-js-westendorp-api
 	url = https://github.com/WildCodeSchool/tours-0219-js-westendorp-api.git
