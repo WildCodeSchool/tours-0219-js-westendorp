@@ -7,8 +7,6 @@ services:
       - back-network
     volumes:
       - /opt/mongo-volume:/data/db
-    depends_on:
-      - proxy
 
   api:
     build:
