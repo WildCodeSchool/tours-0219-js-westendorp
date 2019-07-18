@@ -19,7 +19,7 @@ services:
     networks:
       - back-network
     volumes:
-      - ./mongo-volume:/data/db
+      - /opt/mongo-volume:/data/db
     depends_on:
       - proxy
 
@@ -39,7 +39,7 @@ services:
     depends_on:
       - db
     labels:
-      - "traefik.frontend.rule=Host:localhost;PathPrefix:/api"
+      - "traefik.frontend.rule=Host:localhost;PathPrefix:/api,/images"
       - "traefik.port=3000"
       - "traefik.docker.network=front-network"
 
