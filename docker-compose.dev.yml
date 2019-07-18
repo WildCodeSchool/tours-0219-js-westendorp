@@ -1,6 +1,19 @@
 version: "3.3"
 
 services:
+  proxy:
+    image: traefik
+    command: --api --docker --docker.domain=docker.localhost --logLevel=DEBUG
+    networks:
+      - front-network
+      - back-network
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+
   db:
     image: mongo:4.0.1
     networks:
@@ -17,10 +30,10 @@ services:
       - UPLOAD_PATH=/tmp/upload
       - NODE_ENV=production
       - PORT=3000
-      - SECRET_KEY=${SECRET}
+      - SECRET_KEY=secretKey
       - DBURI=mongodb://db/Westendorp?retryWrites=true
     networks:
-      - web
+      - front-network
       - back-network
     depends_on:
       - db
@@ -36,7 +49,7 @@ services:
       - NODE_ENV=production
       - PORT=80
     networks:
-      - web
+      - front-network
     depends_on:
       - api
     labels:
@@ -45,8 +58,7 @@ services:
       - "traefik.docker.network=front-network"
 
 networks:
-  web:
-      external: true
+  front-network:
   back-network:
 
 volumes:
