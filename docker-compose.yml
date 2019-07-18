@@ -23,7 +23,7 @@ services:
     depends_on:
       - db
     labels:
-      - "traefik.frontend.rule=Host:localhost;PathPrefix:/api,/images"
+      - "traefik.frontend.rule=Host:ce-westendop;PathPrefix:/api,/images"
       - "traefik.port=3000"
       - "traefik.docker.network=front-network"
 
@@ -38,7 +38,7 @@ services:
     depends_on:
       - api
     labels:
-      - "traefik.frontend.rule=Host:localhost"
+      - "traefik.frontend.rule=Host:ce-westendop"
       - "traefik.port=80"
       - "traefik.docker.network=front-network"
 
