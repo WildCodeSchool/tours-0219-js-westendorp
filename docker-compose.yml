@@ -3,6 +3,7 @@ version: "3.3"
 services:
   db:
     image: mongo:4.0.1
+    restart: always
     networks:
       - back-network
     volumes:
@@ -11,6 +12,7 @@ services:
   api:
     build:
       context: ./tours-0219-js-westendorp-api
+    restart: always 
     environment:
       - UPLOAD_PATH=/tmp/upload
       - NODE_ENV=production
@@ -31,6 +33,7 @@ services:
   ui:
     build:
       context: ./tours-0219-js-westendorp-ui
+    restart: always
     environment:
       - NODE_ENV=production
       - PORT=80
