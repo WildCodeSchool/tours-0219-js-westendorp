@@ -23,9 +23,10 @@ services:
     depends_on:
       - db
     labels:
-      - "traefik.frontend.rule=Host:ce-westendop;PathPrefix:/api,/images"
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:ce-westendop.com;PathPrefix:/api,/images"
       - "traefik.port=3000"
-      - "traefik.docker.network=front-network"
+      - "traefik.docker.network=web"
 
   ui:
     build:
@@ -38,9 +39,10 @@ services:
     depends_on:
       - api
     labels:
-      - "traefik.frontend.rule=Host:ce-westendop"
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:ce-westendop.com"
       - "traefik.port=80"
-      - "traefik.docker.network=front-network"
+      - "traefik.docker.network=web"
 
 networks:
   web:
