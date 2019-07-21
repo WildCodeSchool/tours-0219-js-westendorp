@@ -26,7 +26,7 @@ services:
       - db
     labels:
       - "traefik.enable=true"
-      - "traefik.frontend.rule=Host:ce-westendop.com;PathPrefix:/api,/images"
+      - "traefik.frontend.rule=Host:ce-westendorp.com;PathPrefix:/api,/images"
       - "traefik.port=3000"
       - "traefik.docker.network=web"
 
@@ -43,7 +43,7 @@ services:
       - api
     labels:
       - "traefik.enable=true"
-      - "traefik.frontend.rule=Host:ce-westendop.com"
+      - "traefik.frontend.rule=Host:ce-westendorp.com"
       - "traefik.port=80"
       - "traefik.docker.network=web"
 
