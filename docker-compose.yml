@@ -14,7 +14,7 @@ services:
       context: ./tours-0219-js-westendorp-api
     restart: always 
     environment:
-      - UPLOAD_PATH=/tmp/upload
+      - UPLOAD_PATH=/uploads
       - NODE_ENV=production
       - PORT=3000
       - SECRET_KEY=${SECRET}
@@ -22,11 +22,13 @@ services:
     networks:
       - web
       - back-network
+    volumes:
+      - /opt/uploads:/uploads
     depends_on:
       - db
     labels:
       - "traefik.enable=true"
-      - "traefik.frontend.rule=Host:ce-westendop.com;PathPrefix:/api,/images"
+      - "traefik.frontend.rule=Host:www.ce-westendorp.com,ce-westendorp.com;PathPrefix:/api,/images"
       - "traefik.port=3000"
       - "traefik.docker.network=web"
 
@@ -43,7 +45,7 @@ services:
       - api
     labels:
       - "traefik.enable=true"
-      - "traefik.frontend.rule=Host:ce-westendop.com"
+      - "traefik.frontend.rule=Host:www.ce-westendorp.com,ce-westendorp.com"
       - "traefik.port=80"
       - "traefik.docker.network=web"
 
@@ -54,4 +56,6 @@ networks:
 
 volumes:
   mongo-volume:
+    driver: "local"
+  upload-volume:
     driver: "local"

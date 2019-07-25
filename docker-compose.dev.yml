@@ -27,11 +27,13 @@ services:
     build:
       context: ./tours-0219-js-westendorp-api
     environment:
-      - UPLOAD_PATH=/tmp/upload
+      - UPLOAD_PATH=/uploads
       - NODE_ENV=production
       - PORT=3000
       - SECRET_KEY=secretKey
       - DBURI=mongodb://db/Westendorp?retryWrites=true
+    volumes:
+      - /opt/uploads:/uploads
     networks:
       - front-network
       - back-network
@@ -63,4 +65,6 @@ networks:
 
 volumes:
   mongo-volume:
+    driver: "local"
+  upload-volume:
     driver: "local"
