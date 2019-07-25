@@ -5,7 +5,7 @@
     ```bash 
     ssh root@vps709628.ovh.net
     ```
-2. Creation du user `westendorp` :
+2. Création du user `westendorp` :
     ```bash 
     adduser westendorp
     ```
@@ -13,7 +13,7 @@
     ```bash 
     usermod -aG sudo westendorp 
     ```
-4. Verification de la connexion ssh avec le user `westendorp`
+4. Vérification de la connexion ssh avec le user `westendorp`
     ```bash 
     ssh westendorp@vps709628.ovh.net 
     ```
@@ -44,23 +44,22 @@
     $(lsb_release -cs) \
     stable"
     ```
-5. Mise de la liste des paquets disponnible (car nous avons ajoute le repository officiel de Docker)
+5. Mise de la liste des paquets disponnible
     ```bash 
     sudo apt-get update
     ```
-4. Installation de Docker CE et containerd
+6. Installation de Docker CE et containerd
    ```bash
    sudo apt-get install docker-ce docker-ce-cli containerd.io
    ```
-5. Test de l'installation de Docker
+7. Test de l'installation de Docker
    ```bash
    sudo docker run hello-world
    ```
-   Un long message d'information devrait aparaitre, sur la 7 lignes, vous devriez voir `Hello from Docker!`.
 
 ## Installation de docker-compose
 
-1. Telechargement du binaire de docker-compose
+1. Téléchargement du binaire de docker-compose
    ```bash
    sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
    ```
@@ -71,44 +70,45 @@
 
 ## Configuration de Traefik et Docker
 
-1. Creation du resau docker : `web`
+1. Création du réseau docker : `web`
    ```bash
    sudo docker network create web
    ```
-2. Creation des repertoires et fichier necessaire a l'utilisation de **Traefik** et **Let's Encrypt**
+2. Création des repertoires et fichier necessaire a l'utilisation de **Traefik** et **Let's Encrypt**
     ```bash
-    sudo mkdir -p /opt/traefik/ && sudo touch /opt/traefik/docker-compose.yml
-    sudo touch /opt/traefik/acme.json && sudo chmod 600 /opt/traefik/acme.json
-    sudo touch /opt/traefik/traefik.toml
+    sudo mkdir -p /opt/traefik/ && sudo touch /opt/traefik/docker-compose.yml && \
+    sudo touch /opt/traefik/acme.json && sudo chmod 600 /opt/traefik/acme.json && \
+    sudo touch /opt/traefik/traefik.toml && \
+    sudo mkdir -p /opt/westendorp/
     ```
 3. Ajout de la configuration du **container** de **Traefik** dans le fichier `/opt/traefik/docker-compose.yml`
     ```bash
     sudo bash -c  "echo \"version: '3.6'
 
     services:
-    traefik:
-        image: traefik:1.7.11
-        restart: always
-        ports:
-        - 80:80
-        - 443:443
-        networks:
-        - web
-        volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-        - /opt/traefik/traefik.toml:/traefik.toml
-        - /opt/traefik/acme.json:/acme.json
-        container_name: traefik
+        traefik:
+            image: traefik:1.7.11
+            restart: always
+            ports:
+            - 80:80
+            - 443:443
+            networks:
+            - web
+            volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /opt/traefik/traefik.toml:/traefik.toml
+            - /opt/traefik/acme.json:/acme.json
+            container_name: traefik
 
     networks:
-    web:
-        external: true\" > /opt/traefik/docker-compose.yml"
+        web:
+            external: true\" > /opt/traefik/docker-compose.yml"
     ```
 4. Ajout de la configuration de **Traefik** et **Let's Encrypt** dans le ficher `/opt/traefik/traefik.toml`
     ```bash
     sudo bash -c  'echo "debug = false
 
-    logLevel = \"ERROR\"
+    logLevel = \"DEBUG\"
     defaultEntryPoints = [\"https\",\"http\"]
 
     [entryPoints]
@@ -124,7 +124,7 @@
 
     [docker]
     endpoint = \"unix:///var/run/docker.sock\"
-    domain = \"ce-westendop.com\"
+    domain = \"ce-westendorp.com\"
     watch = true
     exposedByDefault = false
 
@@ -138,31 +138,82 @@
     ```
 5. Lancement de **Traefik**
     ```bash
-    sudo docker-compose up -d
+    cd /opt/traefik && sudo docker-compose up -d
     ```
-## Recuperation du projet
+6. Création du `docker-compose.yml` de Westendorp :
+    ```bash 
+    sudo bash -c  "echo \"version: '3.3'
 
-1. Recuperation du projet depuis Github
-    ```bash
-    sudo git clone --single-branch --branch master --depth 1 https://github.com/WildCodeSchool/tours-0219-js-westendorp.git /opt/westendorp
+    services:
+    db:
+        image: mongo:4.0.1
+        restart: always
+        networks:
+        - web
+        volumes:
+        - /opt/mongo-volume:/data/db
+
+    api:
+        build:
+        context: ./tours-0219-js-westendorp-api
+        restart: always 
+        environment:
+        - UPLOAD_PATH=/uploads
+        - NODE_ENV=production
+        - PORT=3000
+        - SECRET_KEY=${SECRET}
+        - DBURI=mongodb://db/Westendorp?retryWrites=true
+        networks:
+        - web
+        volumes:
+        - /opt/uploads:/uploads
+        depends_on:
+        - db
+        labels:
+        - 'traefik.enable=true'
+        - 'traefik.frontend.rule=Host:www.ce-westendorp.com,ce-westendorp.com;PathPrefix:/api,/images'
+        - 'traefik.port=3000'
+        - 'traefik.docker.network=web'
+
+    ui:
+        build:
+        context: ./tours-0219-js-westendorp-ui
+        restart: always
+        environment:
+        - NODE_ENV=production
+        - PORT=80
+        networks:
+        - web
+        depends_on:
+        - api
+        labels:
+        - 'traefik.enable=true'
+        - 'traefik.frontend.rule=Host:www.ce-westendorp.com,ce-westendorp.com'
+        - 'traefik.port=80'
+        - 'traefik.docker.network=web'
+
+    networks:
+    web:
+        external: true
+    volumes:
+    mongo-volume:
+        driver: 'local'
+    upload-volume:
+        driver: 'local'\" > /opt/westendorp/docker-compose.yml"
     ```
-2. Mise a jour des sous repertoires :
-   ```bash
-   cd /opt/westendorp && sudo git submodule update --init --recursive --depth 1
-   ```
+
 # Deploiement de l'UI et API
-1. Se connecter en SSH sur le serveur
-2. Recuperer les dernieres mise a jour des branchs `master`
-   ```bash
-   cd /opt/westendorp && sudo git submodule update --recursive --depth 1
-   ```
-3. Valorisation de la variable d'environement "SECRET", aller sur [randomkeygen](https://randomkeygen.com/), copier la valeur a la place de "monsecret" dans la commande suivante :
-   ```bash
-   export SECRET=monsecret
-   ```
-4. Executer la commande suivante pour demarrer tous les containers :
-   ```bash
-   cd /opt/westendorp && sudo docker-compose --build -d
-   ```
-5. **OPTIONNEL** creation de l'utilisateur admin (si la base de donnee est vierge par exemple) :
 
+1. Se connecter en SSH sur le serveur
+    ```bash 
+    ssh westendorp@vps709628.ovh.net 
+    ```
+4. Récuperer et installer les dernières versions de l'UI et de l'API (remplacer v1.0.1 par la version souhaité)
+    ```bash
+    cd /opt/westendorp && \
+    sudo rm -rf tours-0219-js-westendorp-ui tours-0219-js-westendorp-api && \
+    sudo mkdir tours-0219-js-westendorp-ui tours-0219-js-westendorp-api && \
+    sudo wget -O- https://github.com/WildCodeSchool/tours-0219-js-westendorp-ui/archive/v1.0.1.tar.gz | sudo tar -xvz --strip 1 -C ./tours-0219-js-westendorp-ui && \
+    sudo wget -O- https://github.com/WildCodeSchool/tours-0219-js-westendorp-api/archive/v1.0.1.tar.gz | sudo tar -xvz --strip 1 -C ./tours-0219-js-westendorp-api && \
+    sudo docker-compose up --build -d
+    ```
